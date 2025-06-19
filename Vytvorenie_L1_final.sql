@@ -8,8 +8,8 @@ AS
 SELECT 
 CAST(id_status AS INT) AS product_status_id-- PK
 ,LOWER(status_name) AS product_status_name
-,DATE(TIMESTAMP(date_update),"UTC+2") AS product_status_update_date
---nefungoval EUROPE/PRAGUE, musela som použiť UTC časové pásmo, dala som tam na letný čas UTC+2
+,DATE(TIMESTAMP(date_update),"UTC+2") AS product_status_update_date --teoreticky to tu ani nemusí být :) 
+--nefungoval EUROPE/PRAGUE, musela som použiť UTC časové pásmo, dala som tam na letný čas UTC+2 --> super řešení!!!
 FROM `secure-granite-455615-p8.L0_google_sheet.status` 
 WHERE id_status IS NOT NULL
 AND status_name IS NOT NULL
@@ -28,8 +28,8 @@ SELECT
   LOWER(name) AS product_name,                  -- Normalize text to lowercase to ensure consistency
   LOWER (type) AS product_type,                  -- Product type (e.g. service, good)
   LOWER (category) AS product_category,          -- Product category (e.g. software, accessories)
-  is_vat_applicable AS is_vat_applicable,-- TRUE if VAT applies, FALSE if exempt
-  date_update AS product_update_date     
+ -- is_vat_applicable AS is_vat_applicable,-- TRUE if VAT applies, FALSE if exempt
+ -- date_update AS product_update_date     --nemusí tu být
 
 FROM `secure-granite-455615-p8.L0_google_sheet.product`
 WHERE id_product IS NOT NULL 
@@ -44,7 +44,7 @@ CREATE OR REPLACE VIEW `secure-granite-455615-p8.L1.L1_branch` AS
 SELECT
   CAST(id_branch AS INT) AS branch_id,                   -- PK
   LOWER(branch_name) AS branch_name,              
-  date_update AS product_status_update_date 
+  date_update AS product_status_update_date --nemusí to být, opakuje se to
 
 FROM `secure-granite-455615-p8.L0_google_sheet.branch`
 WHERE id_branch != "NULL" -- Filter out NULL values in PK
@@ -82,7 +82,7 @@ SELECT
   id_branch AS branch_id,  -- FK
 
   status AS invoice_status_id, 
-  CASE
+  CASE --mohlo by být použití IF viz.  IF(status < 100, TRUE, FALSE) AS flag_invoice_issued, 
     WHEN status < 100 THEN TRUE
     ELSE FALSE
   END AS flag_invoice_issued,  --Invoce status. Invoice status < 100  have been issued. >= 100 - not issued
@@ -128,7 +128,7 @@ SELECT
   DATE(end_date, "UTC+2") AS end_date,  -- End of invoiced period
   DATE(date_insert, "UTC+2") AS insert_date, 
   DATE(date_update, "UTC+2") AS update_date,  
-  load_date AS load_date  -- Load date (already DATE)
+  --load_date AS load_date  -- Load date (already DATE)
 
 FROM `secure-granite-455615-p8.L0_accounting_system.invoice_load`;
 
@@ -180,16 +180,16 @@ SELECT
   p.package_status AS product_status_id,
   s.product_status_name AS product_status,      -- Text name from status 
 
-  CASE 
+ /* CASE --toto není potřeba, již to jednou máme!
     WHEN p.measure_unit IN ('mesia','m?síce','m?si?1ce','měsice','mesiace','měsíce','mesice') THEN 'month'
     WHEN p.measure_unit = 'kus' THEN 'item'
     WHEN p.measure_unit = 'den' THEN 'day'
     WHEN p.measure_unit = '0' THEN NULL
     ELSE LOWER(p.measure_unit)
-  END AS product_unit, -- same logic as in invoice_load
+  END AS product_unit, -- same logic as in invoice_load*/
   
-  p.id_branch AS branch_id,
-  p.load_date AS load_date                      -- Already DATE
+ -- p.id_branch AS branch_id,
+  --p.load_date AS load_date                      -- Already DATE
 
 FROM `secure-granite-455615-p8.L0_crm.product_purchase` AS p
 

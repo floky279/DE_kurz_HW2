@@ -34,7 +34,7 @@ WHERE branch_name != 'unknown';
 CREATE OR REPLACE VIEW `secure-granite-455615-p8.L2.L2_invoice` AS
 SELECT 
   invoice.invoice_id,
-  invoice.invoice_previous_id,
+ -- invoice.invoice_previous_id, --zbytečné 
   invoice.contract_id,
   invoice.date_issue,
   invoice.due_date,

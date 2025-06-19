@@ -13,6 +13,7 @@ SELECT
   contract_status,
 
    -- BUSINESS LOGIC: bucket contract length into 4 categories
+  --TOTO BY ZDE NEMUSELO VŮBEC BÝT
   CASE
     WHEN DATE_DIFF(contract_valid_to, contract_valid_from, MONTH) <  6 THEN 'less than half year'
     WHEN DATE_DIFF(contract_valid_to, contract_valid_from, MONTH) BETWEEN  6 AND 12 THEN '1 year'
